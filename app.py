@@ -152,10 +152,17 @@ date: "{datetime.date.today().isoformat()}"
     with zipfile.ZipFile(zip_buffer, "w") as zf:
         zf.writestr(f"{safe_title}.md", md_content)
 
-        # 画像追加
+        # 画像追加（static/uploads 以下にあるファイルを解決）
         for img_path in image_paths:
-            if os.path.exists(img_path):
-                zf.write(img_path, os.path.join(image_folder, os.path.basename(img_path)))
+            if img_path.startswith("/static/"):
+                real_path = os.path.join(app.root_path, img_path.lstrip("/"))
+            elif img_path.startswith("static/"):
+                real_path = os.path.join(app.root_path, img_path)
+            else:
+                real_path = os.path.join(app.root_path, "static/uploads", img_path)
+
+            if os.path.exists(real_path):
+                zf.write(real_path, os.path.join(image_folder, os.path.basename(real_path)))
 
     zip_buffer.seek(0)
     return send_file(
@@ -164,6 +171,8 @@ date: "{datetime.date.today().isoformat()}"
         download_name=f"{safe_author}.zip",
         mimetype="application/zip"
     )
+
+
 
 
 @app.route("/upload_image", methods=["POST"])
