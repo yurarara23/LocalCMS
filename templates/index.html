@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}記事一覧{% endblock %}
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>記事一覧</h1>
+    <a href="/new" class="btn btn-success">＋ 新規作成</a>
+  </div>
+
+  <div class="list-group">
+    {% for id, title in articles %}
+      <div class="d-flex justify-content-between align-items-center list-group-item">
+        <a href="/article/{{ id }}" class="fw-bold text-decoration-none">{{ title }}</a>
+
+        <div class="btn-group">
+          
+          <a href="/edit/{{ id }}" class="btn btn-sm btn-warning">編集</a>
+          <!-- エクスポート -->
+          <a href="/export/{{ id }}" class="btn btn-sm btn-primary">Export</a>
+
+          <!-- 削除 -->
+          <form action="/delete/{{ id }}" method="POST" style="margin:0;">
+            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('削除しますか？');">削除</button>
+          </form>
+        </div>
+      </div>
+    {% else %}
+      <p class="text-muted">記事がまだありません。</p>
+    {% endfor %}
+  </div>
+{% endblock %}
+
+

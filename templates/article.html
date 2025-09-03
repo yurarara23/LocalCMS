@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+  <h1 class="mb-3">{{ title }}</h1>
+  <div class="card">
+    <div class="card-body">
+      <div>{{ html|safe }}</div>
+    </div>
+  </div>
+
+  <div class="mt-3 d-flex gap-2">
+    <a href="/" class="btn btn-link">← 記事一覧に戻る</a>
+    <a href="/export/{{ id }}" class="btn btn-primary">Export</a>
+  </div>
+{% endblock %}

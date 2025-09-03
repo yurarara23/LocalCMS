@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}記事作成{% endblock %}
+{% block content %}
+  <h1 class="mb-4">記事作成</h1>
+  <form method="POST" enctype="multipart/form-data">
+    <div class="mb-3">
+      <input type="text" name="title" class="form-control" placeholder="タイトル" required>
+    </div>
+    <div class="mb-3">
+      <input type="text" name="author" class="form-control" placeholder="著者名" required>
+    </div>
+    <div class="mb-3">
+      <input type="file" name="image" class="form-control" accept="image/*">
+      <small class="text-muted">※ メイン画像 (任意)</small>
+    </div>
+
+    <!-- 記事本文用の画像アップロード -->
+    <div class="mb-3">
+      <label class="form-label">記事本文用の画像</label>
+      <input type="file" id="articleImage" class="form-control" accept="image/*">
+      <button type="button" class="btn btn-sm btn-secondary mt-2" onclick="uploadArticleImage()">アップロード</button>
+      <div id="uploadedImages" class="mt-2 d-flex flex-wrap gap-2"></div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        <textarea name="content" id="editor" class="form-control" rows="20"
+                  placeholder="Markdownで記事を書く" oninput="updatePreview()"></textarea>
+      </div>
+      <div class="col-md-6">
+        <div id="preview" class="border rounded p-3 bg-white" style="height: 100%; overflow-y: auto;"></div>
+      </div>
+    </div>
+    <div class="mt-3">
+      <button type="submit" class="btn btn-primary">保存</button>
+    </div>
+  </form>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>
+    function updatePreview() {
+      const text = document.getElementById("editor").value;
+      document.getElementById("preview").innerHTML = marked.parse(text || "");
+    }
+
+    async function uploadArticleImage() {
+      const fileInput = document.getElementById("articleImage");
+      if (!fileInput.files.length) return;
+
+      const formData = new FormData();
+      formData.append("image", fileInput.files[0]);
+
+      const res = await fetch("/upload_image", { method: "POST", body: formData });
+      const data = await res.json();
+
+      if (data.url) {
+        // プレビューにサムネイルを追加
+        const imgDiv = document.getElementById("uploadedImages");
+        const img = document.createElement("img");
+        img.src = data.url;
+        img.className = "img-thumbnail";
+        img.style.maxWidth = "150px";
+        imgDiv.appendChild(img);
+
+        // 本文に挿入
+        const editor = document.getElementById("editor");
+        editor.value += `\n<figure><img src="${data.url}" alt="記事画像" style="width:100%"></figure>\n`;
+        updatePreview();
+      }
+    }
+  </script>
+{% endblock %}
